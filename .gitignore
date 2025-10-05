@@ -137,3 +137,9 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# PNPM
+pnpm-lock.yaml
+.pnpm-debug.log*
+# .http file containing requests for
+Test/api.http

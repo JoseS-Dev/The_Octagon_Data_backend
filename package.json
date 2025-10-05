@@ -1,0 +1,19 @@
+{
+  "name": "the_octagon_data_backend",
+  "version": "1.0.0",
+  "description": "The backend for The Octagon Data project, providing APIs and data management services.",
+  "main": "app.mjs",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon app.mjs"
+  },
+  "keywords": [],
+  "author": "JoseS-Dev",
+  "license": "ISC",
+  "packageManager": "pnpm@10.13.1",
+  "dependencies": {
+    "express": "^5.1.0",
+    "nodemon": "^3.1.10"
+  }
+}
