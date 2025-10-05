@@ -15,5 +15,22 @@
   "dependencies": {
     "express": "^5.1.0",
     "nodemon": "^3.1.10"
+  },
+  "devDependencies": {
+    "axios": "^1.12.2",
+    "bcryptjs": "^3.0.2",
+    "cheerio": "^1.1.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "jest": "^30.2.0",
+    "jsonwebtoken": "^9.0.2",
+    "lodash": "^4.17.21",
+    "morgan": "^1.10.1",
+    "multer": "^2.0.2",
+    "nodemailer": "^7.0.6",
+    "pg": "^8.16.3",
+    "supertest": "^7.1.4",
+    "websocket.io": "^0.2.1",
+    "zod": "^4.1.11"
   }
 }
