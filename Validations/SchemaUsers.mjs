@@ -20,6 +20,11 @@ export function validateUser(data){
     return userSchema.safeParse(data);
 }
 
+// Función que valida los datos del usuario , a la hora de actualizar su información
+export function validateUpdateUser(data){
+    return userSchema.partial().safeParse(data);
+}
+
 // Función que valida los datos del login
 export function validateLogin(data){
     return loginSchema.safeParse(data);

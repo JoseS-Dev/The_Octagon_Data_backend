@@ -137,10 +137,10 @@ export class ModelUsers {
         values.push(id);
 
         const update = await db.query(
-            `UPDATE users SET ${setClause.join(', ')} WHERE id = $${values.length}`,
+            `UPDATE users SET ${setClause.join(', ')} WHERE id = $${values.length} RETURNING *`,
             values
         );
         if(update.rowCount === 0) return {error: 'Hubo un error al actualizar la información del usuario'};
-        return {message: 'Usuario actualizado correctamente'};
+        return {message: 'Usuario actualizado correctamente', data: omit(update.rows[0], ['id', 'password_user', 'created_at'])};
     }
 }

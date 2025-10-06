@@ -1,6 +1,5 @@
-import { validateUser, validateLogin } from "../Validations/SchemaUsers.mjs";
+import { validateUser, validateLogin, validateUpdateUser } from "../Validations/SchemaUsers.mjs";
 import { generateToken } from "../Middlewares/VerifyAuth.mjs";
-import { is } from "zod/locales";
 
 export class ControllerUser {
     constructor({ModelUsers}){
@@ -92,6 +91,29 @@ export class ControllerUser {
             return res.status(200).json({
                 message: user.message,
                 data: user.data
+            });
+        }
+        catch(error){
+            return res.status(500).json({error: 'Error del servidor'});
+        }
+    }
+
+    // Controlador para actualizar la información de un usuario
+    updateUser = async (req, res) => {
+        if(!req.file) return res.status(400).json({error: 'No se ha subido ninguna imagen'});
+        const { id } = req.params;
+        const DataUser = {
+            ...req.body,
+            image_user: req.file.path
+        };
+        const validation = validateUpdateUser(DataUser);
+        try{
+            if(!validation.success) return res.status(400).json({error: validation.error.errors});
+            const updateUser = await this.ModelUsers.updateUser({id, updateData: validation.data});
+            if(updateUser.error) return res.status(400).json({error: updateUser.error});
+            return res.status(200).json({
+                message: updateUser.message,
+                data: updateUser.data
             });
         }
         catch(error){

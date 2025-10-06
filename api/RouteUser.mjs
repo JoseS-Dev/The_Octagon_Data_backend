@@ -2,6 +2,7 @@ import { Router } from "express";
 import { ControllerUser } from "../Controller/ControllerUser.mjs";
 import { ModelUsers } from "../Models/Users.mjs";
 import { verifyToken } from "../Middlewares/VerifyAuth.mjs";
+import { UploadImageUser } from "../Middlewares/SubImage.mjs";
 
 const router = Router();
 const controllerUser = new ControllerUser({ModelUsers: ModelUsers});
@@ -19,3 +20,5 @@ RouteUsers.post('/verify', verifyToken, controllerUser.verifyAuth);
 RouteUsers.get('/', controllerUser.getAllUsers);
 // Obtener un usuario por su ID (ruta protegida)
 RouteUsers.get('/:id', controllerUser.getUserById);
+// Actualizar un usuario por su ID (ruta protegida)
+RouteUsers.patch('/:id', UploadImageUser, controllerUser.updateUser);
