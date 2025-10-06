@@ -1,6 +1,6 @@
-import { th } from "zod/locales";
-import { ModelUsers } from "../Models/Users.mjs";
 import { validateUser, validateLogin } from "../Validations/SchemaUsers.mjs";
+import { generateToken } from "../Middlewares/VerifyAuth.mjs";
+import { is } from "zod/locales";
 
 export class ControllerUser {
     constructor({ModelUsers}){
@@ -36,7 +36,8 @@ export class ControllerUser {
             })
             return res.status(200).json({
                 message: LoginUser.message,
-                data: LoginUser.data
+                data: LoginUser.data,
+                token: generateToken(LoginUser.data)
             });
         }
         catch(error){
@@ -57,5 +58,11 @@ export class ControllerUser {
         catch(error){
             return res.status(500).json({error: 'Error del servidor'});
         }
+    }
+
+    // Controlador para verificar el token de un usuario
+    verifyAuth = async (req, res) => {
+        if(!req.user) return res.status(401).json({error: 'No autenticado', isAuth: false});
+        return res.status(200).json({message: 'Autenticado', isAuth: true});
     }
 }
