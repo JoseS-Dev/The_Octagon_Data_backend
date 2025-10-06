@@ -143,4 +143,20 @@ export class ModelUsers {
         if(update.rowCount === 0) return {error: 'Hubo un error al actualizar la información del usuario'};
         return {message: 'Usuario actualizado correctamente', data: omit(update.rows[0], ['id', 'password_user', 'created_at'])};
     }
+
+    // Método para eliminar a un usuario
+    static async deleteUser({id}){
+        if(!id) return {message: 'No fue propocionado el ID del usuario necesario para la eliminación'}
+        // Se verifica que el usuario exista
+        const existingUser = await db.query(
+            `SELECT * FROM users WHERE id = $1`,
+            [id]
+        );
+        if(existingUser.rowCount === 0) return {error: 'No existe un usuario con ese ID'};
+        // Si existe se elimina al usuario, pero primero se elimina su relaciones
+        await db.query('DELETE FROM login_sessions WHERE user_id = $1', [id]);
+        const del = await db.query(`DELETE FROM users WHERE id = $1`, [id]);
+        if(del.rowCount === 0) return {error: 'Hubo un error al eliminar al usuario'};
+        return {message: 'Usuario eliminado correctamente'};
+    }
 }

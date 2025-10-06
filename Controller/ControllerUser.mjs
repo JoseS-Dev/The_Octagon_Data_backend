@@ -120,4 +120,18 @@ export class ControllerUser {
             return res.status(500).json({error: 'Error del servidor'});
         }
     }
+
+    // Controlador para eliminar un usuario por su ID
+    deleteUser = async (req, res) => {
+        const {id} = req.params;
+        try{
+            if(!id) return res.status(400).json({error: 'El ID del usuario es requerido'});
+            const deleteUser = await this.ModelUsers.deleteUser({id});
+            if(deleteUser.error) return res.status(404).json({error: deleteUser.error});
+            return res.status(200).json({message: deleteUser.message});
+        }
+        catch(error){
+            return res.status(500).json({error: 'Error del servidor'});
+        }
+    }
 }

@@ -10,6 +10,8 @@ const app = express();
 app.use(cors());
 app.use(json());
 app.use(morgan('dev'));
+app.use(express.static('uploads'));
+app.use(express.urlencoded({extended: true}));
 
 // Rutas
 app.use('/users', RouteUsers);

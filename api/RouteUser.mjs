@@ -21,4 +21,6 @@ RouteUsers.get('/', controllerUser.getAllUsers);
 // Obtener un usuario por su ID (ruta protegida)
 RouteUsers.get('/:id', controllerUser.getUserById);
 // Actualizar un usuario por su ID (ruta protegida)
-RouteUsers.patch('/:id', UploadImageUser, controllerUser.updateUser);
+RouteUsers.patch('/update/:id', UploadImageUser, controllerUser.updateUser);
+// Ruta para eliminar un usuario por su ID (ruta protegida)
+RouteUsers.delete('/delete/:id', controllerUser.deleteUser);
