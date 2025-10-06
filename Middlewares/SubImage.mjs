@@ -33,7 +33,11 @@ export function configureMulter(directory){
 
 // Creamos la carpeta
 const uploadDir = path.resolve('uploads/users');
+const uploadDirComm = path.resolve('uploads/communities');
+
 const uploadUser = configureMulter(uploadDir);
+const uploadCommunity = configureMulter(uploadDirComm);
 
 // Middleware para la subida
 export const UploadImageUser = uploadUser.single('image_user');
+export const UploadImageCommunity = uploadCommunity.single('image_community');

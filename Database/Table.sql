@@ -14,3 +14,32 @@ CREATE TABLE login_sessions(
     is_active BOOLEAN DEFAULT FALSE,
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
+
+-- Tabla de las comunidades
+CREATE TABLE communities(
+    id SERIAL PRIMARY KEY,
+    name_community VARCHAR(155) NOT NULL,
+    descripcion_community TEXT,
+    image_community VARCHAR(255),
+    is_active BOOLEAN DEFAULT TRUE,
+    is_blocked BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_by INT,
+    members_count INT DEFAULT 0,
+    type_community VARCHAR(50) DEFAULT 'public', -- public, private, secret
+    FOREIGN KEY(created_by) REFERENCES users(id)
+)
+
+-- Tabla intermedia para la relación muchos a muchos entre usuarios y comunidades
+CREATE TABLE user_communities(
+    id SERIAL PRIMARY KEY,
+    user_id INT,
+    community_id INT,
+    role VARCHAR(50) DEFAULT 'member', -- roles: member, admin, moderator
+    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	is_banned BOOLEAN DEFAULT FALSE,
+	banned_at TIMESTAMP,
+	banned_text TEXT,
+    FOREIGN KEY(user_id) REFERENCES users(id),
+    FOREIGN KEY(community_id) REFERENCES communities(id)
+);
