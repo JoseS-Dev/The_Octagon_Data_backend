@@ -5,6 +5,7 @@ export const userSchema = zod.object({
     name_user: zod.string().min(2),
     email_user: zod.string().email(),
     password_user: zod.string().min(6),
+    username: zod.string().min(2),
     image_user: zod.string().url().optional()
 });
 

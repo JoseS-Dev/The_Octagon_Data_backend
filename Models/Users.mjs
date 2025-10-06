@@ -84,4 +84,63 @@ export class ModelUsers {
         if(LogoutSesion.rowCount === 0) return {error: 'El usuario no tiene una sesión activa'};
         return {OutLogout: 'Sesión cerrada correctamente'};
     }
+
+    // Obtener a todos los usuarios (sin información sensible)
+    static async getAllUsers(){
+        const users = await db.query(
+            `SELECT id, name_user, email_user, username, image_user, created_at FROM users`
+        );
+        if(users.rowCount === 0) return {error: 'No hay usuarios registrados'};
+        return {message: 'Usuarios obtenidos correctamente', data: users.rows};
+    }
+
+    // Obtener un usuario por su ID (sin información sensible)
+    static async getUserById({id}){
+        if(!id) return {message: 'No fue propocionado el ID del usuario necesario para la búsqueda'}
+        const user = await db.query(
+            `SELECT * FROM users WHERE id = $1`,
+            [id]
+        );
+        if(user.rowCount === 0) return {error: 'No existe un usuario con ese ID'};
+        const sanitizedUser = omit(user.rows[0], ['id', 'password_user']);
+        return {message: 'Usuario obtenido correctamente', data: sanitizedUser};
+    }
+
+    // Método para actualizar la información de un usuario
+    static async updateUser({id, updateData}){
+        if(!id || !updateData) return {message: 'No fue propocionado el ID del usuario o los datos para la actualización'}
+        const allowedFields = ['name_user', 'email_user', 'password_user', 'username', 'image_user'];
+        
+        const updateToFields = {}
+        for(const field of allowedFields){
+            if(updateData[field]) updateToFields[field] = updateData[field];
+        }
+
+        // Se verifica que el usuario exista
+        const existingUser = await db.query(
+            `SELECT * FROM users WHERE id = $1`,
+            [id]
+        );
+        if(existingUser.rowCount === 0) return {error: 'No existe un usuario con ese ID'};
+        // Si existe se actualiza la información
+        const setClause = [];
+        const values = [];
+        // Si se van actualizar la contraseña, se hashea primero
+        if(updateToFields.password_user){
+            const hashedPassword = await bcrypt.hash(updateToFields.password_user, 10);
+            updateToFields.password_user = hashedPassword;
+        }
+        Object.entries(updateToFields).forEach(([key, value], index) => {
+            setClause.push(`${key} = $${index + 1}`);
+            values.push(value);
+        })
+        values.push(id);
+
+        const update = await db.query(
+            `UPDATE users SET ${setClause.join(', ')} WHERE id = $${values.length}`,
+            values
+        );
+        if(update.rowCount === 0) return {error: 'Hubo un error al actualizar la información del usuario'};
+        return {message: 'Usuario actualizado correctamente'};
+    }
 }

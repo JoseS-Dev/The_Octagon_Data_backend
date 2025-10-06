@@ -15,3 +15,7 @@ RouteUsers.post('/login', controllerUser.LoginUser);
 RouteUsers.post('/logout', controllerUser.LogoutUser);
 // Ruta protegida para probar el middleware de verificación de token
 RouteUsers.post('/verify', verifyToken, controllerUser.verifyAuth);
+// Obtener todos los usuarios (ruta protegida)
+RouteUsers.get('/', controllerUser.getAllUsers);
+// Obtener un usuario por su ID (ruta protegida)
+RouteUsers.get('/:id', controllerUser.getUserById);
