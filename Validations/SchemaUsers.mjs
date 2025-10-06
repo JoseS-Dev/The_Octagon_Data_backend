@@ -8,7 +8,18 @@ export const userSchema = zod.object({
     image_user: zod.string().url().optional()
 });
 
+// Defino el esquema de datos para el login
+export const loginSchema = zod.object({
+    email_user: zod.string().email(),
+    password_user: zod.string().min(6)
+})
+
 // Función que valida los datos del usuario
 export function validateUser(data){
     return userSchema.safeParse(data);
+}
+
+// Función que valida los datos del login
+export function validateLogin(data){
+    return loginSchema.safeParse(data);
 }
