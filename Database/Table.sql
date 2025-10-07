@@ -43,3 +43,13 @@ CREATE TABLE user_communities(
     FOREIGN KEY(user_id) REFERENCES users(id),
     FOREIGN KEY(community_id) REFERENCES communities(id)
 );
+
+CREATE TABLE fighters(
+	id SERIAL PRIMARY KEY,
+	name_fighter VARCHAR(255) NOT NULL,
+	nickname_fighter VARCHAR(255) NOT NULL,
+	record_fighter VARCHAR(255),
+	weightClass weight_class NOT NULL,
+	image_fighter VARCHAR(255),
+	profileURL VARCHAR(255)
+);

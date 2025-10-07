@@ -4,6 +4,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import { RouteUsers } from './api/RouteUser.mjs';
 import { RouteComm } from './api/RouteComm.mjs';
+import { RouteFighter } from './api/RouteFighter.mjs';
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ app.use('/uploads',express.static('uploads'));
 // Rutas
 app.use('/users', RouteUsers);
 app.use('/communities',RouteComm);
+app.use('/fighters', RouteFighter);
 
 // Corremos servidor si no esta en produccion
 if(process.env.NODE_ENV !== 'prod'){
