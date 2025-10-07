@@ -18,24 +18,44 @@ export class ModelCommunity {
         return {data: sanitizedCommunities, message: 'Comunidades obtenidas correctamente'};
     }
     // método para obtener todas las comunidades creadas por un usuario
-    static async getAllCommunitieByUser({id}){
-        if(!id) return {error: 'El id del usuario es requerido'}
+    static async getAllCommunitieByUser({created_by}){
+        if(!created_by) return {error: 'El id del usuario es requerido'}
         // Se verifica si existe dicho usuario
         const existingUser = await db.query(
-            `SELECT * FROM users WHERE id = $1`, [id]
+            `SELECT * FROM users WHERE id = $1`, [created_by]
         );
         if(existingUser.rowCount === 0) return {message: "No existe un usuario con dicho ID"}
         // Si existe, hacemos la busqueda de las comunidades creadas por él
         const communitiesUser = await db.query(
-            `SELECT U.name_user, C.* FROM communities C
-            JOIN users U ON C.created_by = U.id WHERE U.id = $1
-            ORDER BY C.name_community ASC`, [id]
+            `SELECT * FROM communities WHERE created_by = $1`, [created_by]
         );
         if(communitiesUser.rowCount === 0) return {message: "El usuario no ha creado comunidades"}
         return {data: communitiesUser.rows, 
             message: `Comunidades de ${existingUser.rows[0].name_user} obtenidas correctamente`
         }
     }
+
+    // método para obtener todos los miembros de una comunidad
+    static async getAllMembersFromCommunity({community_id}){
+        if(!community_id) return {error: 'El id de la comunidad es requerido'}
+        // Se verifica si existe dicha comunidad
+        const existingCommunity = await db.query(
+            `SELECT * FROM communities WHERE id = $1`, [community_id]
+        );
+        if(existingCommunity.rowCount === 0) return {error: "No existe una comunidad con dicho ID"}
+        // Si existe, hacemos la busqueda de los miembros de la comunidad
+        const members = await db.query(
+            `SELECT U.name_user, U.username,U.image_user, U.id, 
+            UC.role,UC.joined_at, C.name_community FROM user_communities UC
+            JOIN users U ON UC.user_id = U.id
+            JOIN communities C ON UC.community_id = C.id
+            WHERE UC.community_id = $1`, [community_id]
+        );
+        if(members.rowCount === 0) return {message: "No hay miembros en esta comunidad"};
+        return {data: members.rows, message: 'Miembros obtenidos correctamente'};
+    }
+    
+
     // método para obtener una comunidad por su ID
     static async getCommunityById({id}){
         if(!id) return {message: 'No fue propocionado el ID de la comunidad necesario para la búsqueda'};
@@ -152,7 +172,7 @@ export class ModelCommunity {
         // Si no es miembro, se agrega a la comunidad
         const newMember = await db.query(
             `INSERT INTO user_communities(community_id, user_id)
-            VALUES ($1, $2) RETURNING community_id, user_id, joined_at`,
+            VALUES ($1, $2) RETURNING joined_at`,
             [community_id, user_id]
         );
         // A su vez se actualiza el número de miembros en la tabla communities
@@ -160,7 +180,12 @@ export class ModelCommunity {
             `UPDATE communities SET members_count = members_count + 1 WHERE id = $1`,
             [community_id]
         );
-        return {data: newMember.rows[0], message: 'Usuario agregado a la comunidad correctamente'};
+        return {data: {name_user: existingUser.rows[0].name_user, 
+            community: existingCommunity.rows[0].name_community,
+            joined_at: newMember.rows[0].joined_at},
+            message: `El usuario ${existingUser.rows[0].name_user} ha sido agregado a la 
+            comunidad ${existingCommunity.rows[0].name_community} correctamente`
+        }
     }
 
     // método para eliminar un miembro de una comunidad
@@ -195,7 +220,7 @@ export class ModelCommunity {
     }
 
     // método para banear un usuario de una comunidad
-    static async banMemberFromComunity({DataMember}){
+    static async banMemberFromCommunity({DataMember}){
         if(!DataMember) return {error: 'No fue propocionado el ID de la comunidad o del usuario'};
         const {community_id, user_id, banned_text} = DataMember;
         // Se verifica si existe el usuario
@@ -212,19 +237,37 @@ export class ModelCommunity {
         if(existingMember.rowCount === 0) return {error: 'El usuario no es miembro de la comunidad'};
         // Si existe y es miembro, se procede a banearlo
         const bannedMember = await db.query(
-            `INSERT INTO user_communities(community_id, user_id, is_banned, banned_text, banned_at)
-            VALUES ($1, $2, true, $3, NOW())`, [community_id, user_id, banned_text]
+            `UPDATE user_communities SET is_banned = true, banned_text = $1, banned_at = NOW()
+            WHERE community_id = $2 AND user_id = $3`,
+            [banned_text, community_id, user_id]
         );
-        // se elimina de la comunidad y se actualiza el número de miembros
-        await db.query(
-            `DELETE FROM user_communities WHERE community_id = $1 AND user_id = $2`,
+        return {message: `El usuario ${existingUser.rows[0].name_user} 
+        ha sido baneado de la comunidad correctamente`};
+    }
+    
+    // método para desbanner a un usuario de una comunidad
+    static async unbanMemberFromCommunity({DataMember}){
+        if(!DataMember) return {error: 'No fue propocionado el ID de la comunidad o del usuario'};
+        const {community_id, user_id} = DataMember;
+        // Se verifica si existe el usuario
+        const existingUser = await db.query(
+            `SELECT * FROM users WHERE id = $1`,
+            [user_id]
+        );
+        if(existingUser.rowCount === 0) return {error: 'No existe un usuario con ese ID'};
+        // Se verifica si el usuario es miembro de la comunidad
+        const existingMember = await db.query(
+            `SELECT * FROM user_communities WHERE community_id = $1 AND user_id = $2`,
             [community_id, user_id]
         );
+        if(existingMember.rowCount === 0) return {error: 'El usuario no es miembro de la comunidad'};
+        // Si existe y es miembro, se procede a desbanearlo
         await db.query(
-            `UPDATE communities SET members_count = members_count - 1 WHERE id = $1`,
-            [community_id]
+            `UPDATE user_communities SET is_banned = false, banned_text = NULL, banned_at = NULL
+            WHERE community_id = $1 AND user_id = $2`,
+            [community_id, user_id]
         );
-        return {data: bannedMember.rows[0], message: `El usuario ${existingUser.rows[0].name_user} 
-        ha sido baneado de la comunidad correctamente`};
-    } 
+        return {message: `El usuario ${existingUser.rows[0].name_user} ha sido desbaneado de 
+        la comunidad correctamente`};
+    }
 }
