@@ -1,3 +1,4 @@
+import { parse } from "dotenv";
 import { validateCommunity } from "../Validations/SchemaComu.mjs";
 
 export class ControllerComm {
@@ -43,7 +44,7 @@ export class ControllerComm {
         try{
             if(!type_community) return res.status(400).json({error: 'El tipo de comunidad es requerido'});
             const comm = await this.ModelCommunity.getCommunityByType({type_community});
-            if(comm.message) return res.status(404).json({message: comm.message});
+            if(comm.error) return res.status(404).json({message: comm.error});
             return res.status(200).json({
                 message: comm.message,
                 data: comm.data
@@ -59,6 +60,7 @@ export class ControllerComm {
         if(!req.file) return res.status(400).json({error: 'No se ha subido ninguna imagen'});
         const DataCommunity = {
             ...req.body,
+            created_by: parseInt(req.body.created_by),
             image_community: req.file.path,
         }
         const validation = validateCommunity(DataCommunity);
@@ -72,6 +74,7 @@ export class ControllerComm {
             });
         }
         catch(error){
+            console.error(error);
             return res.status(500).json({error: 'Error del servidor'});
         }
     }
