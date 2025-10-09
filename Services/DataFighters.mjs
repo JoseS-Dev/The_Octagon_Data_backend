@@ -1,21 +1,37 @@
-import axios from "axios";
-import dotenv from "dotenv";
-dotenv.config();
+import { parse } from 'node-html-parser';
+import { CONFIG_HEADERS } from './ConfigScraping.mjs';
+import puppeteer from 'puppeteer';
 
-// Servicios para Interactuar con la pagina de la UFC con web scraping
-export class ServicesDataFighters{
-    // Servicio para obtener los datos de la vista de los luchadores de la UFC
-    getFightersFromUFC = async () => {
+
+export class ServicesScraping {
+    // método para obtener los luchadores desde la página de la UFC
+    async getFightersFromUFC(url){
         try{
-            const response = await axios.get(process.env.UFC_URL);
-            if(response.status !== 200) return {
-                error: 'Error al obtener los datos de la página de la UFC'
-            };
-            return response.data;
+            const browser = await puppeteer.launch({
+                headless: "new",
+                product: 'chrome',
+                args: [
+                    '--no-sandbox', 
+                    '--disable-setuid-sandbox',
+                    `--user-agent=${CONFIG_HEADERS['User-Agent']}`
+                ]
+            });
+            if(!browser) return {error: 'No se pudo iniciar el navegador'};
+            const page = await browser.newPage();
+            if(!page) return {error: 'No se pudo abrir una nueva página'};
+            await page.goto(url, {waitUntil: 'networkidle2', timeout: 30000});
+
+            const content = await page.content();
+            if(!content) return {error: 'No se pudo obtener el contenido de la página'};
+            const $ = parse(content);
+            return $;
         }
         catch(error){
-            console.error('Error al obtener los datos de la página de la UFC:', error);
-            return {error: 'Error al obtener los datos de la página de la UFC'};
+            console.error(error);
+            return {error: 'Error al obtener los luchadores desde la página de la UFC'};
+        }
+        finally{
+            await browser.close();
         }
     }
 }
