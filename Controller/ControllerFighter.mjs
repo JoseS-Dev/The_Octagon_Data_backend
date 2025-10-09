@@ -8,7 +8,10 @@ export class ControllerFighter {
             const {name} = req.params;
             const result = await this.ModelFighters.LoadFightersFromUFC({name});
             if(result.error) return res.status(500).json({error: result.error});
-            return res.status(200).json({data: result.data});
+            return res.status(200).json({
+                message: result.message,
+                data: result.data
+            });
         }
         catch(error){
             console.error(error);

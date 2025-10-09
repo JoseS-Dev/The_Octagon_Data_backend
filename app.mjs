@@ -23,8 +23,7 @@ app.use('/fighters', RouteFighter);
 // Corremos servidor si no esta en produccion
 if(process.env.NODE_ENV !== 'prod'){
     app.listen(process.env.PORT, () => {
-        console.log(`Servidor escuchando en 
-        http://localhost:${process.env.PORT}`);
+        console.log(`Servidor escuchando en http://localhost:${process.env.PORT}`);
     })
 }
 

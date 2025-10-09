@@ -10,7 +10,10 @@ export const CONFIG_SCAPING = {
     image_fighter: '.hero-profile__image',
     name_fighter: '.hero-profile__name',
     nickname_fighter: '.hero-profile__nickname',
-    record_fighter: '.hero-profile__division-body'
+    record_fighter: '.hero-profile__division-body',
+    strike_favor_fighter: '.c-stat-3bar__group',
+    compare_fighter: '.c-stat-compare__group',
+    stats_fighter: '.stats-records--compare',
 }
 
 // Configuraciones de cabezeras para las solicitudes HTTPS

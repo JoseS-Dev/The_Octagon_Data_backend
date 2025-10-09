@@ -8,14 +8,19 @@ export class ServicesScraping {
     async getFightersFromUFC(url){
         let browser;
         try{
-            browser = await chromium.launch({headless: true});
+            browser = await chromium.launch({ headless: true});
+            if(!browser) throw new Error('No se pudo iniciar el navegador');
+            // Creamos un contexto y una pagina
             const context = await browser.newContext();
             const page = await context.newPage();
+            if(!page || !context) throw new Error('No se pudo crear la página o el contexto');
+            // Agregamos los headers para evitar bloqueos
             await page.setExtraHTTPHeaders(CONFIG_HEADERS);
-            await page.goto(url, {waitUntil: 'networkidle'});
+            // Navegamos a la pagina
+            await page.goto(url, { waitUntil: 'networkidle' });
             const content = await page.content();
-            const $ = parse(content);
-            return $;
+            const html = parse(content);
+            return html;
         }
         catch(error){
             console.error(error);
