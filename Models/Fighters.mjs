@@ -4,15 +4,14 @@ import {db} from '../Database/db.mjs';
 
 export class ModelFighters{
     // método para obtener los luchadores desde la página de la UFC
-    static async LoadFightersFromUFC({id}){
-        if(!id) return {error: 'ID del luchador es requerido'};
-        const url = getAltheleURl(id);
+    static async LoadFightersFromUFC({name}){
+        if(!name) return {error: 'Nombre del luchador es requerido'};
+        const url = getAltheleURl(name);
         console.log(`Scaping URL: ${url}`);
 
         // Scraping de datos
         const $ = await new ServicesScraping().getFightersFromUFC(url);
-        if($.error) return {error: $.error};
-        const name_fighter = $.querySelector(CONFIG_SCAPING.name_fighter)|| 'N/A';
+        const name_fighter = $.querySelector(CONFIG_SCAPING.name_fighter).textContent|| 'N/A';
         const nickname_fighter = $.querySelector(CONFIG_SCAPING.nickname_fighter) ?
             $.querySelector(CONFIG_SCAPING.nickname_fighter).textContent.replaceAll('"', '') : 'N/A';
         const image_fighter = $.querySelector(CONFIG_SCAPING.image_fighter)?.getAttribute('src') || 'N/A';

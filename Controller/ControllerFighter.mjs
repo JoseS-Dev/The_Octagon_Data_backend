@@ -5,8 +5,8 @@ export class ControllerFighter {
     // Controlador para cargar los luchadores desde la página de la UFC
     loadFightersFromUFC = async (req, res) => {
         try{
-            const {id} = req.params;
-            const result = await this.ModelFighters.LoadFightersFromUFC({id});
+            const {name} = req.params;
+            const result = await this.ModelFighters.LoadFightersFromUFC({name});
             if(result.error) return res.status(500).json({error: result.error});
             return res.status(200).json({data: result.data});
         }
