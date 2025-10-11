@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export const getAltheleURl = (name_fighter) => 'https://www.ufc.com/athlete/' + name_fighter;
+export const getAltheleAll = () => 'https://www.ufcespanol.com/athletes/all?filters[0]=location:UZ';
 
 // Configuraciones de variables de scraping para los luchadores
 export const CONFIG_SCAPING = {
@@ -14,6 +15,12 @@ export const CONFIG_SCAPING = {
     strike_favor_fighter: '.c-stat-3bar__group',
     compare_fighter: '.c-stat-compare__group',
     stats_fighter: '.stats-records--compare',
+}
+
+// Configuraciones del scaping para el all fighters
+export const CONFIG_SCAPING_ALL = {
+    List_fighters: '.l-flex__item .node--type-athlete',
+
 }
 
 // Configuraciones de cabezeras para las solicitudes HTTPS

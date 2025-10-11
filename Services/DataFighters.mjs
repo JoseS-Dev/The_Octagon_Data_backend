@@ -17,7 +17,7 @@ export class ServicesScraping {
             // Agregamos los headers para evitar bloqueos
             await page.setExtraHTTPHeaders(CONFIG_HEADERS);
             // Navegamos a la pagina
-            await page.goto(url, { waitUntil: 'networkidle' });
+            await page.goto(url, { waitUntil: 'networkidle', timeout: 60000 });
             const content = await page.content();
             const html = parse(content);
             return html;

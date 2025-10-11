@@ -1,9 +1,9 @@
 import { ServicesScraping } from '../Services/DataFighters.mjs';
-import { CONFIG_SCAPING, getAltheleURl } from '../Services/ConfigScraping.mjs';
+import { CONFIG_SCAPING, getAltheleURl, getAltheleAll, CONFIG_SCAPING_ALL } from '../Services/ConfigScraping.mjs';
 import {db} from '../Database/db.mjs';
 
 export class ModelFighters{
-    // método para obtener los luchadores desde la página de la UFC
+    // método para obtener los datos de un luchador y guardarlos en la base de datos
     static async LoadFightersFromUFC({name}){
         if(!name) return {error: 'Nombre del luchador es requerido'};
         const url = getAltheleURl(name);
@@ -79,5 +79,48 @@ export class ModelFighters{
         )
 
         return {data: fighter, message: 'Luchador agregado correctamente'};
+    }
+
+    // Método para cargar todos los luchadores desde la pagina
+    static async LoadAllFightersFromUFC(){
+        const url = getAltheleAll();
+        if(!url) return {error: 'No se pudo obtener la URL de los luchadores'};
+        const $ = await new ServicesScraping().getFightersFromUFC(url);
+        const fighters = Array.from($.querySelectorAll(CONFIG_SCAPING_ALL.List_fighters))
+        .map((el) => {
+            // Función pa limpiar el nombre del luchador
+            const cleanElement = (selector, defaultValue) => {
+                const element = el.querySelector(selector);
+                if(element.textContent == '') return defaultValue;
+                return element ? element.textContent.trim() : defaultValue;
+            }
+            // Función para limpiar el record del luchador
+            const cleanRecord = (selector, defaultValue = '0-0-0') => {
+                const element = el.querySelector(selector);
+                return element ? element.textContent.split('(')[0].trim() : defaultValue;
+            }
+            return {
+                name_fighter: cleanElement('.c-listing-athlete__name'),
+                nickname_fighter: cleanElement('.c-listing-athlete__nickname', 'Sin Apodo')
+                .replaceAll('"', ''),
+                image_fighter: el.querySelector('img')?.getAttribute('src') || 'N/A',
+                weight_class: cleanElement('.c-listing-athlete__title'),
+                record_fighter: cleanRecord('.c-listing-athlete__record')
+            }
+        });
+        if(fighters.length === 0) return {error: 'No se encontraron luchadores'};
+        // Si se encuentra luchadores se guardan en la base de datos
+        for(const fighter of fighters){
+            await db.query(
+                `INSERT INTO fighters
+                (name_fighter, nickname_fighter, image_fighter, weight_class, record_fighter)
+                VALUES($1, $2, $3, $4, $5)`,
+                [
+                    fighter.name_fighter, fighter.nickname_fighter, fighter.image_fighter,
+                    fighter.weight_class, fighter.record_fighter
+                ]
+            )
+        }
+        return {data: fighters, message: 'Luchadores agregados correctamente'};
     }
 }
