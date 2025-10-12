@@ -15,3 +15,6 @@ export function cleanRecord(el, selector, defaultValue = '0-0-0'){
     const element = el.querySelector(selector);
     return element ? element.textContent.split('(')[0].trim() : defaultValue;
 }
+
+export const getAltheleURl = (name_fighter) => 'https://www.ufc.com/athlete/' + name_fighter;
+export const getAltheleAll = () => 'https://www.ufcespanol.com/athletes/all?filters[0]=location:SE&filters[1]=status:778&page=1';
