@@ -1,3 +1,5 @@
+import { validateToggleFavorite } from "../Validations/SchemaFighter.mjs";
+
 export class ControllerFighter {
     constructor({ModelFighters}){
         this.ModelFighters = ModelFighters;
@@ -81,6 +83,42 @@ export class ControllerFighter {
         }
         catch(error){
             return res.status(500).json({error: 'Error al obtener el luchador'});
+        }
+    }
+
+    // Controlador para obtener a los luchadores favoritos de un usuario
+    getFavoriteFightersByUser = async (req, res) => {
+        const {user_id} = req.params;
+        try{
+            const favoriteFighters = await this.ModelFighters.getFavoriteFightersByUser({user_id});
+            if(favoriteFighters.error) return res.status(404).json({error: favoriteFighters.error});
+            return res.status(200).json({
+                message: favoriteFighters.message,
+                data: favoriteFighters.data,
+            });
+        }
+        catch(error){
+            return res.status(500).json({error: 'Error al obtener los luchadores favoritos'});
+        }
+    }
+
+    // Controlador para marcar o desmarcar un luchador como favorito para un usuario
+    toggleFavoriteFighter = async (req, res) => {
+        const validation = validateToggleFavorite(req.body);
+        try{
+            if(!validation.success) return res.status(400).json({
+            error: 'Datos inválidos', details: validation.error.errors});
+            const {user_id, fighter_id, is_favorite} = validation.data;
+            const result = await this.ModelFighters.toggleFavoriteFighter({
+            user_id, fighter_id, is_favorite});
+            if(result.error) return res.status(400).json({error: result.error});
+            return res.status(200).json({
+                message: result.message,
+                data: result.data,
+            });
+        }
+        catch(error){
+            return res.status(500).json({error: 'Error al actualizar el luchador favorito'});
         }
     }
 }

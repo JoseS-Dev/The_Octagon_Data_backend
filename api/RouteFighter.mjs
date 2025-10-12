@@ -16,3 +16,7 @@ RouteFighter.get('/fighters/nickname/:nickname_fighter', controllerFighter.getFi
 RouteFighter.get('/fighters/weight_class/:weight_class', controllerFighter.getFightersByWeightClass);
 // Ruta para obtener un luchador por su nombre
 RouteFighter.get('/fighters/name/:name_fighter', controllerFighter.getFighterByName);
+// Ruta para obtener los luchadores favoritos de un usuario
+RouteFighter.get('/fighters/favorites/:user_id', controllerFighter.getFavoriteFightersByUser);
+// Ruta para marcar o desmarcar un luchador como favorito
+RouteFighter.patch('/fighters/toggle-favorite', controllerFighter.toggleFavoriteFighter);
