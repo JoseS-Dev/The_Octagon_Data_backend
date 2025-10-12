@@ -44,10 +44,8 @@ export class ModelFighters{
             `SELECT * FROM fighters WHERE name_fighter = $1`,
             [name_fighter]
         );
-        // El resultado de obtener el nombre lo vamos a configurar de la siguiente manera
-        const slugName = fighter.rows[0].name_fighter.toLowerCase().replaceAll(' ', '-');
         if(fighter.rowCount === 0) return {error: 'No se encontró el luchador'};
-        return {data: {...fighter.rows[0], slug: slugName}, 
+        return {data: fighter.rows[0], 
         message: 'Luchador encontrado correctamente'};
     }
 }
