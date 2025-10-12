@@ -70,10 +70,12 @@ export class ModelFighters{
         if(is_favorite === undefined || is_favorite === null) return {
         error: 'El estado de favorito es obligatorio'};
         // Verificamos si el usuario existe y el luchador existe
-        const existingUser = await db.query(`SELECT * FROM users WHERE id = $1`, [user_id]);
+        const existingUser = await db.query(
+            `SELECT * FROM login_sessions WHERE user_id = $1 AND is_active = true`
+            ,[user_id]
+        );
         const existingFighter = await db.query(`SELECT * FROM fighters WHERE id = $1`, [fighter_id]);
-        if(existingUser.rowCount === 0 || existingFighter.rowCount === 0) return {
-            error: 'El usuario o el luchador no existen'};
+        if(existingUser.rowCount === 0 || existingFighter.rowCount === 0) return { error: 'El usuario no esta logueado o el luchador no existe'};
         // Verificamos ya si el luchador está en favoritos del usuario
         const favoriteCheck = await db.query(
             `SELECT * FROM user_fighters WHERE user_id = $1 AND fighter_id = $2`,
@@ -92,7 +94,7 @@ export class ModelFighters{
             // Si no está en favoritos, lo agregamos
             await db.query(
                 `INSERT INTO user_fighters (user_id, fighter_id, is_favorite) VALUES ($1, $2, $3)`,
-                [user_id, fighter_id, true]
+                [user_id, fighter_id, is_favorite]
             );
             return {message: `${existingFighter.rows[0].name_fighter} ha sido agregado a tus favoritos`};
         }
