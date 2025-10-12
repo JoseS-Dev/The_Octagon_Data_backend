@@ -53,6 +53,20 @@ CREATE TABLE fighters(
     record_fighter VARCHAR(50) NOT NULL
 );
 
+CREATE TABLE fighters_extras(
+	id SERIAL PRIMARY KEY,
+	fighter_id INT,
+	status_fighter status_of_fighter NOT NULL,
+	country_fighter VARCHAR(145),
+	team_fighter VARCHAR(180),
+	age_fighter INT,
+	height_fighter DECIMAL(5,2) NOT NULL,
+	weight_fighter DECIMAL(5,2) NOT NULL,
+	reach_fighter DECIMAL(5,2) NOT NULL,
+	reach_legs_fighter DECIMAL(5,2) NOT NULL,
+	FOREIGN KEY(fighter_id) REFERENCES fighters(id)
+);
+
 -- Tabla intermedia para la relación muchos a muchos entre usuarios y luchadores
 CREATE TABLE user_fighters(
 	user_id INT,
