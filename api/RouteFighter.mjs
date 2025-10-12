@@ -1,6 +1,7 @@
 import {Router} from 'express';
 import {ControllerFighter} from '../Controller/ControllerFighter.mjs';
 import { ModelFighters } from '../Models/Fighters.mjs';
+import { LoadExtraFighterDataFromUFC } from '../Scraping/FightersScraping.mjs';
 
 const router = Router();
 const controllerFighter = new ControllerFighter({ModelFighters: ModelFighters});
@@ -22,10 +23,9 @@ RouteFighter.get('/favorites/:user_id', controllerFighter.getFavoriteFightersByU
 RouteFighter.patch('/toggle-favorite', controllerFighter.toggleFavoriteFighter);
 // Ruta para obtener la información extra de un luchador
 
-/*RouteFighter.get('/extra-info/:name_fighter', async (req, res) => {
-    const {name_fighter} = req.params;
+RouteFighter.get('/extra-info', async (req, res) => {
     try{
-        const extraInfo = await LoadExtraFighterDataFromUFC({name_fighter});
+        const extraInfo = await LoadExtraFighterDataFromUFC();
         if(extraInfo.error) return res.status(404).json({error: extraInfo.error});
         return res.status(200).json({
             message: extraInfo.message,
@@ -36,4 +36,4 @@ RouteFighter.patch('/toggle-favorite', controllerFighter.toggleFavoriteFighter);
         console.error(error);
         return res.status(500).json({error: 'Error al obtener la información extra del luchador'});
     }
-});*/
+});

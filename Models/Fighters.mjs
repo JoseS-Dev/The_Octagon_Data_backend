@@ -1,4 +1,7 @@
 import {db} from '../Database/db.mjs';
+import pkg from 'lodash';
+
+const {omit} = pkg;
 
 export class ModelFighters{
     // Método para obtener todos los luchadores
@@ -10,9 +13,15 @@ export class ModelFighters{
     // Método para obtener un luchador por su ID
     static async getFighterById({id}){
         if(!id) return {error: 'El ID del luchador es obligatorio'};
-        const fighter = await db.query('SELECT * FROM fighters WHERE id = $1', [id]);
+        const fighter = await db.query(
+            `SELECT f.*, Fex.* FROM fighters f
+            LEFT JOIN fighters_extras Fex ON f.id = Fex.fighter_id
+            WHERE f.id = $1`, 
+            [id]
+        );
         if(fighter.rowCount === 0) return {error: 'No se encontró el luchador'};
-        return {data: fighter.rows[0], message: 'Luchador encontrado correctamente'};
+        const sanitizedFighter = omit(fighter.rows[0], ['fighter_id'])
+        return {data: sanitizedFighter, message: 'Luchador encontrado correctamente'};
     }
 
     // Método para obtener a los luchadores favoritos de un usuario
