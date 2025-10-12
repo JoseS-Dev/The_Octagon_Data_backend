@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export const getAltheleURl = (name_fighter) => 'https://www.ufc.com/athlete/' + name_fighter;
-export const getAltheleAll = () => 'https://www.ufcespanol.com/athletes/all?filters[0]=location:UZ';
+export const getAltheleAll = () => 'https://www.ufcespanol.com/athletes/all?filters[0]=location:SE&filters[1]=status:778&page=1';
 
 // Configuraciones de variables de scraping para los luchadores
 export const CONFIG_SCAPING = {
