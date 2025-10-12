@@ -48,8 +48,16 @@ CREATE TABLE fighters(
 	id SERIAL PRIMARY KEY,
 	name_fighter VARCHAR(255) NOT NULL,
 	nickname_fighter VARCHAR(255) NOT NULL,
-	record_fighter VARCHAR(255),
-	weightClass weight_class NOT NULL,
-	image_fighter VARCHAR(255),
-	profileURL VARCHAR(255)
+	image_fighter VARCHAR(255) NOT NULL,
+    weight_class VARCHAR(100) NOT NULL,
+    record_fighter VARCHAR(50) NOT NULL
+);
+
+-- Tabla intermedia para la relación muchos a muchos entre usuarios y luchadores
+CREATE TABLE user_fighters(
+	user_id INT,
+	fighter_id INT,
+	PRIMARY KEY(user_id, fighter_id),
+	FOREIGN KEY(user_id) REFERENCES users(id),
+	FOREIGN KEY(fighter_id) REFERENCES fighters(id)
 );

@@ -2,35 +2,4 @@ export class ControllerFighter {
     constructor({ModelFighters}){
         this.ModelFighters = ModelFighters;
     }
-    // Controlador para cargar los datos de un luchador desde la página de la UFC
-    loadFightersFromUFC = async (req, res) => {
-        try{
-            const {name} = req.params;
-            const result = await this.ModelFighters.LoadFightersFromUFC({name});
-            if(result.error) return res.status(500).json({error: result.error});
-            return res.status(200).json({
-                message: result.message,
-                data: result.data
-            });
-        }
-        catch(error){
-            console.error(error);
-            return res.status(500).json({error: 'Error al cargar los luchadores desde la página de la UFC'});
-        }
-    }
-    // Controlador para cargar todos los luchadores desde la página de la UFC
-    loadAllfightersFromUFC = async (req, res) => {
-        try{
-            const result = await this.ModelFighters.LoadAllFightersFromUFC();
-            if(result.error) return res.status(500).json({error: result.error});
-            return res.status(200).json({
-                message: result.message,
-                data: result.data
-            });
-        }
-        catch(error){
-            console.error(error);
-            return res.status(500).json({error: 'Error al cargar los luchadores desde la página de la UFC'});
-        }
-    }
 }

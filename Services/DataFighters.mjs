@@ -1,5 +1,5 @@
 import { parse } from 'node-html-parser';
-import { CONFIG_HEADERS } from './ConfigScraping.mjs';
+import { CONFIG_HEADERS} from './ConfigScraping.mjs';
 import {chromium} from 'playwright';
 
 
@@ -18,6 +18,7 @@ export class ServicesScraping {
             await page.setExtraHTTPHeaders(CONFIG_HEADERS);
             // Navegamos a la pagina
             await page.goto(url, { waitUntil: 'networkidle', timeout: 60000 });
+            
             const content = await page.content();
             const html = parse(content);
             return html;

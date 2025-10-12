@@ -7,5 +7,3 @@ const controllerFighter = new ControllerFighter({ModelFighters: ModelFighters});
 export const RouteFighter = router;
 
 // Ruta para cargar los luchadores desde la página de la UFC
-router.get('/load-fighters/:name', controllerFighter.loadFightersFromUFC);
-router.get('/load-all-fighters', controllerFighter.loadAllfightersFromUFC);
