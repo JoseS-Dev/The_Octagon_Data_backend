@@ -108,6 +108,11 @@ export class ModelCommunity {
             created_by, created_at`,
             [name_community, description_community, image_community, type_community, created_by]
         );
+        // A su vez se agrega al creador como administrador de la comunidad
+        await db.query(
+            `INSERT INTO user_communities(community_id, user_id, role) VALUES ($1, $2, 'admin')`,
+            [newCommunity.rows[0].id, created_by]
+        )
         return {data: newCommunity.rows[0], message: 'Comunidad creada correctamente'};
 
     }
@@ -235,8 +240,8 @@ export class ModelCommunity {
             [community_id, user_id]
         );
         if(existingMember.rowCount === 0) return {error: 'El usuario no es miembro de la comunidad'};
-        // Si existe y es miembro, se procede a banearlo
-        const bannedMember = await db.query(
+        // Si existe y es miembro, se procede a banearlo, dicho baneo solo los administradores
+        await db.query(
             `UPDATE user_communities SET is_banned = true, banned_text = $1, banned_at = NOW()
             WHERE community_id = $2 AND user_id = $3`,
             [banned_text, community_id, user_id]
