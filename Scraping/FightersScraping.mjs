@@ -1,4 +1,4 @@
-import { CONFIG_SCAPING_ALL, CONFIG_SCAPING } from "../Services/ConfigScraping.mjs";
+import { CONFIG_SCAPING_ALL, CONFIG_SCAPING, CONFIG_SCRAPING_STATS } from "../Services/ConfigScraping.mjs";
 import { ServicesScraping } from "../Services/DataFighters.mjs";
 import { db } from "../Database/db.mjs";
 import { cleanElement, cleanRecord, getAltheleAll, getAltheleURl } from '../utils.mjs';
@@ -177,5 +177,101 @@ async function processSingleFighter(fighter) {
     } catch (error) {
         console.error(`Error procesando ${fighter.name_fighter}:`, error);
         throw error;
+    }
+}
+
+// Función para obtener las estadisticas de un luchador
+export async function LoadStatsFighterFromUFC({name_fighter}){
+    const slugName = name_fighter.toLowerCase().replaceAll(' ', '-');
+    const url = getAltheleURl(slugName);
+    if(!url) return {error: `No se pudo obtener la URL para ${name_fighter}`};
+    console.log(`Scaping URL: ${url}`);
+    const $ = await new ServicesScraping().getFightersFromUFC(url);
+    if($.error) return {error: $.error};
+    // Obtenemos las estatdisticas de los golpes significativos y metodos de victoria
+    const strikes_wins = $.querySelectorAll(CONFIG_SCRAPING_STATS.Strikes_wins);
+    const strikeWins = {};
+    strikes_wins.forEach((el) => {
+        const label = cleanElement(el, '.c-stat-3bar__label').toLowerCase().replaceAll(' ', '_');
+        const value = cleanElement(el, '.c-stat-3bar__value');
+        strikeWins[label] = value;
+    })
+
+    // Obtenemos las estadisticas de comparación
+    const stats_compare = $.querySelectorAll(CONFIG_SCRAPING_STATS.Stats_compare);
+    const statsCompare = {};
+    stats_compare.forEach((el) => {
+        const label = cleanElement(el, '.c-stat-compare__label').toLowerCase().replaceAll(' ', '_');
+        const value = cleanElement(el, '.c-stat-compare__number');
+        statsCompare[label] = value;
+    })
+
+    const statsFighter = {
+        stats_of_legs: String(strikeWins['de_pie'] || 'N/A'),
+        stats_of_clinch: String(strikeWins['clinch'] || 'N/A'),
+        stats_of_floor: String(strikeWins['suelo'] || 'N/A'),
+        wins_of_ko_tko: String(strikeWins['ko/tko'] || 'N/A'),
+        wins_of_submission: String(strikeWins['sub'] || 'N/A'),
+        wins_of_decision: String(strikeWins['dec'] || 'N/A'),
+        sig_hits_connected_min: parseFloat(statsCompare['golpes_sig._conectados'] || 0),
+        sig_hits_received_min: parseFloat(statsCompare['golpes_sig._recibidos'] || 0),
+        knockdown_avg_min: parseFloat(statsCompare['promedio_de_knockdown'] || 0),
+        submission_avg_min: parseFloat(statsCompare['promedio_de_sumisión'] || 0),
+        sig_hits_defense: String(statsCompare['defensa_de_golpes_sig.'] || 'N/A'),
+        takedown_defense: String(statsCompare['defensa_de_derribo'] || 'N/A'),
+        knockdown_avg: parseFloat(statsCompare['knockdown_avg'] || 0),
+        time_fight_avg: String(statsCompare['promedio_de_tiempo_de_pelea'] || 'N/A'),
+    }
+    
+    // Verficamos si ya existe dicho luchador
+    const existingFighter = await db.query(
+        `SELECT * FROM fighters WHERE name_fighter = $1`,
+        [name_fighter]
+    );
+    if(existingFighter.rowCount === 0) return {error: `
+        No se encontró el luchador ${name_fighter} en la base de datos.`}
+    // Si existe, verificamos si ya tiene estadisticas
+    const fighterId = existingFighter.rows[0].id;
+    const existingStats = await db.query(
+        `SELECT * FROM fighters_stats WHERE fighter_id = $1`,
+        [fighterId]
+    );
+    if(existingStats.rowCount > 0){
+        // Si ya tiene estadisticas, las actualizamos
+        await db.query(
+            `UPDATE fighters_stats SET stats_of_legs = $1, stats_of_clinch = $2,
+            stats_of_floor = $3, wins_of_ko_tko = $4, wins_of_submission = $5,
+            wins_of_decision = $6, sig_hits_connected_min = $7, sig_hits_received_min = $8,
+            knockdown_avg_min = $9, submission_avg_min = $10, sig_hits_defense = $11,
+            takedown_defense = $12, knockdown_avg = $13, time_fight_avg = $14 WHERE fighter_id = $15`,
+            [
+                statsFighter.stats_of_legs, statsFighter.stats_of_clinch, statsFighter.stats_of_floor,
+                statsFighter.wins_of_ko_tko, statsFighter.wins_of_submission,
+                statsFighter.wins_of_decision, statsFighter.sig_hits_connected_min,
+                statsFighter.sig_hits_received_min, statsFighter.knockdown_avg_min,
+                statsFighter.submission_avg_min, statsFighter.sig_hits_defense,
+                statsFighter.takedown_defense, statsFighter.knockdown_avg, statsFighter.time_fight_avg,
+                fighterId
+            ]
+        );
+        return {data: statsFighter, message: `Estadisticas de ${name_fighter} actualizadas correctamente`};
+    }
+    else{
+        // Si no tiene estadisticas, las insertamos
+        await db.query(
+            `INSERT INTO fighters_stats (fighter_id, stats_of_legs, stats_of_clinch,
+            stats_of_floor, wins_of_ko_tko, wins_of_submission, wins_of_decision,
+            sig_hits_connected_min, sig_hits_received_min, knockdown_avg_min, submission_avg_min,
+            sig_hits_defense, takedown_defense, knockdown_avg, time_fight_avg)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`,
+            [
+                fighterId, statsFighter.stats_of_legs, statsFighter.stats_of_clinch,
+                statsFighter.stats_of_floor, statsFighter.wins_of_ko_tko, statsFighter.wins_of_submission,
+                statsFighter.wins_of_decision, statsFighter.sig_hits_connected_min, statsFighter.sig_hits_received_min,
+                statsFighter.knockdown_avg_min, statsFighter.submission_avg_min, statsFighter.sig_hits_defense,
+                statsFighter.takedown_defense, statsFighter.knockdown_avg, statsFighter.time_fight_avg
+            ]
+        )
+        return {data: statsFighter, message: `Estadisticas de ${name_fighter} agregadas correctamente`};
     }
 }

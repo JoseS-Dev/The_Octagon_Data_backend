@@ -24,5 +24,7 @@ RouteFighter.get('/favorites/:user_id', controllerFighter.getFavoriteFightersByU
 RouteFighter.patch('/toggle-favorite', controllerFighter.toggleFavoriteFighter);
 // Ruta para cargar datos extras de luchadores de la UFC (Scraping)
 RouteFighter.get('/scrape/extra-info', controllerScraping.loadExtraFighterData);
+// Ruta para cargar las estadisticas de un luchador (Scraping)
+RouteFighter.get('/scrape/stats/:name_fighter', controllerScraping.LoadStatsFighterFromUFC);
 
 

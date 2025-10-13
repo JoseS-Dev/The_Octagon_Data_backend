@@ -14,6 +14,12 @@ export const CONFIG_SCAPING_ALL = {
 
 }
 
+// Configuraciones del Scraping para las estadisticas de los luchadores
+export const CONFIG_SCRAPING_STATS = {
+    Strikes_wins: '.c-stat-3bar__group',
+    Stats_compare: '.c-stat-compare__group'
+}
+
 // Configuraciones de cabezeras para las solicitudes HTTPS
 export const CONFIG_HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',

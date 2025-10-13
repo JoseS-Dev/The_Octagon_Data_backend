@@ -67,6 +67,26 @@ CREATE TABLE fighters_extras(
 	FOREIGN KEY(fighter_id) REFERENCES fighters(id)
 );
 
+CREATE TABLE fighters_stats(
+	id SERIAL PRIMARY KEY,
+	fighter_id INT,
+	stats_of_legs VARCHAR(80),
+	stats_of_clinch VARCHAR(80),
+	stats_of_floor VARCHAR(80),
+	wins_of_ko_tko VARCHAR(65),
+	wins_of_decision VARCHAR(65),
+	wins_of_submission VARCHAR(65),
+	sig_hits_connected_min DECIMAL(5,2),
+	sig_hits_received_min DECIMAL(5,2),
+	knockdown_avg_min DECIMAL(5,2),
+	submission_avg_min DECIMAL(5,2),
+	sig_hits_defense VARCHAR(75),
+	takedown_defense VARCHAR(75),
+	knockdown_avg DECIMAL(5,2),
+	time_fight_avg VARCHAR(100),
+	FOREIGN KEY(fighter_id) REFERENCES fighters(id)
+); 
+
 -- Tabla intermedia para la relación muchos a muchos entre usuarios y luchadores
 CREATE TABLE user_fighters(
 	user_id INT,
