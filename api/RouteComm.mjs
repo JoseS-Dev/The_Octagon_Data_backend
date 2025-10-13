@@ -2,6 +2,7 @@ import {Router} from 'express';
 import { ControllerComm } from '../Controller/ControllerComm.mjs';
 import { ModelCommunity } from '../Models/Community.mjs';
 import { UploadImageCommunity } from '../Middlewares/SubImage.mjs';
+import { sendBanEmail, sendUnBanEmail } from '../Middlewares/SendEmail.mjs';
 
 const router = Router();
 const controllerComm = new ControllerComm({ModelCommunity: ModelCommunity});
@@ -26,6 +27,6 @@ RouteComm.patch('/addMember', controllerComm.addMemberToCommunity);
 // Ruta para eliminar un miembro de una comunidad (Ruta protegida)
 RouteComm.patch('/removeMember', controllerComm.removeMemberFromCommunity);
 // Ruta para bannear un usuario de una comunidad (Ruta protegida)
-RouteComm.patch('/banUser', controllerComm.banMemberFromCommunity);
+RouteComm.patch('/banUser',sendBanEmail, controllerComm.banMemberFromCommunity);
 // Ruta para desbannear un usuario de una comunidad (Ruta protegida)
-RouteComm.patch('/unbanUser', controllerComm.unbanMemberFromCommunity);
+RouteComm.patch('/unbanUser',sendUnBanEmail, controllerComm.unbanMemberFromCommunity);

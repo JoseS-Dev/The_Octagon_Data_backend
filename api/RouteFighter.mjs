@@ -1,10 +1,11 @@
 import {Router} from 'express';
 import {ControllerFighter} from '../Controller/ControllerFighter.mjs';
 import { ModelFighters } from '../Models/Fighters.mjs';
-import { LoadExtraFighterDataFromUFC } from '../Scraping/FightersScraping.mjs';
+import { ControllerScraping } from '../Controller/ControllerScraping.mjs';
 
 const router = Router();
 const controllerFighter = new ControllerFighter({ModelFighters: ModelFighters});
+const controllerScraping = new ControllerScraping();
 export const RouteFighter = router;
 
 // Ruta para obtener a todos los luchadores
@@ -21,19 +22,7 @@ RouteFighter.get('/name/:name_fighter', controllerFighter.getFighterByName);
 RouteFighter.get('/favorites/:user_id', controllerFighter.getFavoriteFightersByUser);
 // Ruta para marcar o desmarcar un luchador como favorito
 RouteFighter.patch('/toggle-favorite', controllerFighter.toggleFavoriteFighter);
-// Ruta para obtener la información extra de un luchador
+// Ruta para cargar datos extras de luchadores de la UFC (Scraping)
+RouteFighter.get('/scrape/extra-info', controllerScraping.loadExtraFighterData);
 
-RouteFighter.get('/extra-info', async (req, res) => {
-    try{
-        const extraInfo = await LoadExtraFighterDataFromUFC();
-        if(extraInfo.error) return res.status(404).json({error: extraInfo.error});
-        return res.status(200).json({
-            message: extraInfo.message,
-            data: extraInfo.data,
-        });
-    }
-    catch(error){
-        console.error(error);
-        return res.status(500).json({error: 'Error al obtener la información extra del luchador'});
-    }
-});
+

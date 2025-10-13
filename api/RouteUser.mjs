@@ -3,13 +3,14 @@ import { ControllerUser } from "../Controller/ControllerUser.mjs";
 import { ModelUsers } from "../Models/Users.mjs";
 import { verifyToken } from "../Middlewares/VerifyAuth.mjs";
 import { UploadImageUser } from "../Middlewares/SubImage.mjs";
+import { sendRegistrationEmail } from "../Middlewares/SendEmail.mjs";
 
 const router = Router();
 const controllerUser = new ControllerUser({ModelUsers: ModelUsers});
 export const RouteUsers = router;
 
 // Ruta para registrar un nuevo usuario
-RouteUsers.post('/register', controllerUser.registerUser);
+RouteUsers.post('/register',sendRegistrationEmail, controllerUser.registerUser);
 // Ruta para loguear a un usuario
 RouteUsers.post('/login', controllerUser.LoginUser);
 // Ruta para cerrar la sesión de un usuario
