@@ -95,3 +95,24 @@ CREATE TABLE user_fighters(
 	FOREIGN KEY(user_id) REFERENCES users(id),
 	FOREIGN KEY(fighter_id) REFERENCES fighters(id)
 );
+
+CREATE TABLE events(
+	id SERIAL PRIMARY KEY,
+	date_event DATE,
+	country_event VARCHAR(255),
+	venue_event VARCHAR(255),
+	type_event VARCHAR(255)
+);
+
+CREATE TABLE event_billoard(
+	id SERIAL PRIMARY KEY,
+	event_id INT,
+	image_red_fighter VARCHAR(255),
+	name_red_fighter VARCHAR(125),
+	country_red_fighter VARCHAR(155),
+	image_blue_fighter VARCHAR(255),
+	name_blue_fighter VARCHAR(125),
+	country_blue_fighter VARCHAR(155),
+	weight_class_fight VARCHAR(155),
+	FOREIGN KEY(event_id) REFERENCES events(id)
+);
