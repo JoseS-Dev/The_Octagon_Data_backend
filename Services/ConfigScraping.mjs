@@ -8,6 +8,15 @@ export const CONFIG_SCAPING = {
     image_fighter: '.hero-profile__image',
 }
 
+// Configuraciones de variables de scraping para los eventos
+export const CONFIG_SCRAPING_EVENTS = {
+    list_events: '.l-listing__item',
+    date_event: '.c-card-event--result__date',
+    venue_event: '.field--name-taxonomy-term-title',
+    location_event: '.field--name-location',
+    type_event: '.c-card-event--result__logo a'
+}
+
 // Configuraciones del scaping para el all fighters
 export const CONFIG_SCAPING_ALL = {
     List_fighters: '.l-flex__item .node--type-athlete',

@@ -1,5 +1,5 @@
-import { LoadExtraFighterDataFromUFC, LoadAllFightersFromUFC, 
-LoadStatsFighterFromUFC } from "../Scraping/FightersScraping.mjs";
+import { LoadExtraFighterDataFromUFC, LoadStatsFighterFromUFC } from "../Scraping/FightersScraping.mjs";
+import { getAllEvents } from "../Scraping/EventsScraping.mjs";
 
 export class ControllerScraping {
     // Controlador para cargar los datos extras de un luchador
@@ -31,6 +31,22 @@ export class ControllerScraping {
         catch(error){
             console.error('Error al cargar las estadisticas del luchador:', error);
             return res.status(500).json({error: 'Error al cargar las estadisticas del luchador'});
+        }
+    }
+
+    // Controlador para cargar todos los eventos de la UFC
+    LoadEventsUFC = async (req, res) => {
+        try{
+            const eventsUFC = await getAllEvents();
+            if(eventsUFC.error) return res.status(500).json({error: eventsUFC.error});
+            return res.status(200).json({
+                message: eventsUFC.message,
+                data: eventsUFC.data
+            });
+        }
+        catch(error){
+            console.error('Error al cargar los eventos de la UFC:', error);
+            return res.status(500).json({error: 'Error al cargar los eventos de la UFC'});
         }
     }
 }

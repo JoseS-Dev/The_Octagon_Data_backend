@@ -1,4 +1,4 @@
-import {parser} from 'node-html-parser';
+import { parse } from 'node-html-parser';
 import { CONFIG_HEADERS } from './ConfigScraping.mjs';
 import { chromium } from 'playwright';
 
@@ -7,7 +7,7 @@ export class DataEvents {
     async getEventsFromUFC(url){
         let browser;
         try{
-            const browser = await chromium.launch({ headless: true});
+            browser = await chromium.launch({ headless: true});
             if(!browser) throw new Error('No se pudo iniciar el navegador');
             // Creamos un contexto y una pagina
             const context = await browser.newContext();
@@ -18,7 +18,7 @@ export class DataEvents {
             // Navegamos a la pagina
             await page.goto(url, {waitUntil: 'networkidle', timeout: 60000});
             const content = await page.content();
-            const html = parser(content);
+            const html = parse(content);
             return html;
         }
         catch(error){
